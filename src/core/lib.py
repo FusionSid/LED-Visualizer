@@ -5,7 +5,13 @@ import colorsys
 import mido
 from rpi_ws281x import Color  # type: ignore
 
-from core.config import SharedConfig, LED_OFF, KEY_COUNT, LED_STRIP_LENGTH, LEDS_PER_KEY
+from core.config import (
+    shared_config,
+    LED_OFF,
+    KEY_COUNT,
+    LED_STRIP_LENGTH,
+    LEDS_PER_KEY,
+)
 
 
 def clear_all_leds(strip) -> None:
@@ -15,10 +21,10 @@ def clear_all_leds(strip) -> None:
     strip.show()
 
 
-def handle_midi(strip, midi_input, shared_config: SharedConfig):
+def handle_midi(strip, midi_input, shutdown_event):
     active_notes = {}
 
-    while True:
+    while not shutdown_event.is_set():
         for msg in midi_input.iter_pending():
             if msg.type in ("note_on", "note_off"):
                 note = msg.note

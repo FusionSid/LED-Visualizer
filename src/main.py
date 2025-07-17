@@ -1,7 +1,7 @@
 # the type: ignore comments are to tell my type chcker to stfu
 # It's because i'm writing the code on a mac, but the library can only be installed on my Pi so the types won't work
 
-import threading
+from threading import Thread, Event
 
 from rpi_ws281x import PixelStrip  # type: ignore
 
@@ -18,8 +18,6 @@ from core.config import (
     LED_STRIP_LENGTH,
     HOST,
     PORT,
-    config_lock,
-    shared_config,
 )
 
 
@@ -36,17 +34,30 @@ def main() -> None:
     strip.begin()
     clear_all_leds(strip)
 
-    threading.Thread(
-        target=lambda: webapp.run(host=HOST, port=PORT), daemon=True
-    ).start()
+    shutdown_event = Event()
+
+    def midi_loop():
+        while not shutdown_event.is_set():
+            with MidiContextManager(strip) as midi_input:
+                handle_midi(strip, midi_input, shutdown_event)
+
+    midi_thread = Thread(target=midi_loop)
+    web_app_thread = Thread(
+        target=lambda: webapp.run(
+            host=HOST,
+            port=PORT,
+        ),
+        daemon=True,
+    )
+
+    midi_thread.start()
+    web_app_thread.start()
 
     try:
-        while True:
-            with MidiContextManager(strip) as midi_input, config_lock:
-                handle_midi(strip, midi_input, shared_config)
+        Event().wait()
     except KeyboardInterrupt:
-        clear_all_leds(strip)
-        print("Exiting. Turning off LEDs...")
+        shutdown_event.set()
+        midi_thread.join(timeout=2)
 
 
 if __name__ == "__main__":
