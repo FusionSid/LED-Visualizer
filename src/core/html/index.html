@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <label
+            >Hue:
+            <input type="range" id="hue" min="0" max="1" step="0.01" /></label
+        ><br />
+        <button onclick="sendConfig()">Update</button>
+
+        <script>
+            const HEADERS = { "Content-Type": "application/json" };
+            const METHOD = "POST";
+
+            const submit = async () => {
+                const body = JSON.stringify({
+                    hue: parseFloat(document.getElementById("hue").value),
+                });
+                await fetch("/config", {
+                    method: METHOD,
+                    headers: HEADERS,
+                    body,
+                });
+            };
+        </script>
+    </body>
+</html>
