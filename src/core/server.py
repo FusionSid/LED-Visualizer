@@ -15,7 +15,7 @@ def config():
     if (
         request.method != "POST"
         or not request.json
-        or not request.json["hue"]
+        or request.json["hue"] is None
         or not isinstance(request.json["hue"], float)
     ):
         with config_lock:
