@@ -16,7 +16,7 @@ def config():
         request.method != "POST"
         or not request.json
         or request.json["hue"] is None
-        or not isinstance(request.json["hue"], float)
+        or (not isinstance(request.json["hue"], float) and request.json["hue"] != 0)
     ):
         with config_lock:
             return jsonify(shared_config)
