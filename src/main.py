@@ -6,8 +6,9 @@ from threading import Thread, Event
 from rpi_ws281x import PixelStrip  # type: ignore
 
 from core.server import webapp
+from core.lib import clear_all_leds
+from core.midi import midi_handler_loop
 from core.models import MidiContextManager
-from core.lib import clear_all_leds, handle_midi
 from core.config import (
     LED_BRIGHTNESS,
     LED_CHANNEL,
@@ -39,7 +40,7 @@ def main() -> None:
     def midi_loop():
         while not shutdown_event.is_set():
             with MidiContextManager(strip) as midi_input:
-                handle_midi(strip, midi_input, shutdown_event)
+                midi_handler_loop(strip, midi_input, shutdown_event)
 
     midi_thread = Thread(target=midi_loop)
     web_app_thread = Thread(
