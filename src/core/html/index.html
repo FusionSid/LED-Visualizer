@@ -1,25 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Settings</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                color: #333;
+            }
+
+            main {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+                height: 100vh;
+                padding: 20px;
+            }
+
+            label {
+                font-size: 1.4rem;
+                font-weight: 500;
+            }
+
+            input[type="range"] {
+                width: 300px;
+                height: 6px;
+                background: #ddd;
+                border-radius: 5px;
+                outline: none;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 1rem;
+                border: none;
+                border-radius: 5px;
+                background-color: #007bff;
+                color: white;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+            #colorView {
+                width: 300px;
+                height: 50px;
+                border-radius: 10px;
+                background-color: rgb(0, 255, 255);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #randomIndicator {
+                color: white;
+                display: none;
+            }
+        </style>
+    </head>
     <body>
-        <label
-            >Hue:
-            <input type="range" id="hue" min="0" max="1" step="0.01" /></label
-        ><br />
-        <button onclick="submit()">Update</button>
+        <main>
+            <label for="hue">Enter Hue:</label>
+            <input type="range" id="hue" min="0" max="0.99" step="0.001" />
+            <button onclick="submit()">Update</button>
+            <div id="colorView">
+                <h1 id="randomIndicator">Random</h1>
+            </div>
+        </main>
 
         <script>
+            function hsvToRgb(h) {
+                let i = Math.floor(h * 6);
+                let f = h * 6 - i;
+                i = i % 6;
+
+                let t = f;
+                let q = 1 - f;
+
+                switch (i) {
+                    case 0:
+                        return [1, t, 0];
+                    case 1:
+                        return [q, 1, 0];
+                    case 2:
+                        return [0, 1, t];
+                    case 3:
+                        return [0, q, 1];
+                    case 4:
+                        return [t, 0, 1];
+                    case 5:
+                        return [1, 0, q];
+                }
+            }
+
+            window.onload = () => {
+                const hueInput = document.getElementById("hue");
+                const colorView = document.getElementById("colorView");
+
+                const randomIndicator =
+                    document.getElementById("randomIndicator");
+
+                hueInput.addEventListener("input", function (e) {
+                    if (e.target.value == 0) {
+                        randomIndicator.style.display = "block";
+                        return (colorView.style.backgroundColor = "black");
+                    }
+
+                    const [r, g, b] = hsvToRgb(e.target.value);
+                    const newColor = `rgb(${r * 255} ${g * 255} ${b * 255})`;
+
+                    randomIndicator.style.display = "none";
+                    colorView.style.backgroundColor = newColor;
+                });
+            };
+
             const HEADERS = { "Content-Type": "application/json" };
             const METHOD = "POST";
 
             const submit = async () => {
-                const body = JSON.stringify({
-                    hue: parseFloat(document.getElementById("hue").value),
-                });
+                const hueValue = parseFloat(
+                    document.getElementById("hue").value
+                );
+                const body = JSON.stringify({ hue: hueValue });
+
                 await fetch("/config", {
                     method: METHOD,
                     headers: HEADERS,
                     body,
                 });
+
+                console.log(`Hue submitted: ${hueValue}`);
             };
         </script>
     </body>
