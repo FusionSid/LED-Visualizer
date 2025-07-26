@@ -52,4 +52,4 @@ def midi_handler_loop(strip, midi_input, shutdown_event):
         if int(time.time()) % 5 == 0 and len(mido.get_input_names()) < 2:  # type: ignore
             break
 
-        time.sleep(1 / UPDATE_INTERVAL)
+        time.sleep(UPDATE_INTERVAL)
