@@ -12,6 +12,10 @@ from core.config import (
 
 
 def clear_all_leds(strip) -> None:
+    """
+    Turns off all leds
+    """
+
     for led in range(strip.numPixels()):
         strip.setPixelColor(led, LED_OFF)
 
@@ -19,6 +23,11 @@ def clear_all_leds(strip) -> None:
 
 
 def note_to_led_range(note: int):
+    """
+    Gets a range of led indices that are accoiated with a single note
+    This range is typically 2 leds as I have 2 leds per note
+    """
+
     A0 = 21
     idx = note - A0
 
@@ -30,10 +39,21 @@ def note_to_led_range(note: int):
 
 
 def color_to_tuple(color: int):
+    """
+    Converts the 24 bit number color returned by the strips get color function to rgb
+    """
+
     return ((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF)
 
 
 def velocity_color(velocity: int, hue: float):
+    """
+    Returns the rgb color given velocity and hue
+    The greater the velocity (how hard i hit the note), the brighter the color
+    The hue lies on a range from 0 -> 1
+    If the hue is exactly equal to 0, then the color will be a random color
+    """
+
     if hue == 0:
         hue = random.random()
 

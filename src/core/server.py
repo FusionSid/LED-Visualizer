@@ -10,12 +10,12 @@ template_dir = os.path.join(current_dir, "html")
 webapp = Flask(__name__, template_folder=template_dir)
 
 
-@webapp.route("/config", methods=["GET", "POST"])
+@webapp.route("/config", methods=["POST"])
 def config():
     if (
-        request.method != "POST"
-        or not request.json
+        not request.json
         or request.json["hue"] is None
+        # the hue must be a float except for the case where its 0 (as that means random color)
         or (not isinstance(request.json["hue"], float) and request.json["hue"] != 0)
     ):
         with config_lock:

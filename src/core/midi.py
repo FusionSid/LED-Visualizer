@@ -3,13 +3,21 @@ import mido
 
 from core.config import (
     shared_config,
+    FADE_DURATION,
     UPDATE_INTERVAL,
+    MIN_MIDI_DEVICES,
+    CHECK_CONNECTED_INTERVAL,
 )
 from core.models import NoteState
 from core.lib import color_to_tuple, note_to_led_range, velocity_color
 
 
 def midi_handler_loop(strip, midi_input, shutdown_event):
+    """
+    Main midi handling loops
+    Constantly runs to update leds and ensure midi connection
+    """
+
     active_notes: dict[int, NoteState] = {}
 
     while not shutdown_event.is_set():
@@ -26,13 +34,13 @@ def midi_handler_loop(strip, midi_input, shutdown_event):
                         velocity_color(msg.velocity, shared_config["hue"])
                     )
                     active_notes[note] = NoteState(
-                        note, (0, 0, 0), target_color, duration=0.07
+                        note, (0, 0, 0), target_color, FADE_DURATION
                     )
                 else:
                     current_color = color_to_tuple(strip.getPixelColor(leds[0]))
 
                     active_notes[note] = NoteState(
-                        note, current_color, (0, 0, 0), duration=0.07
+                        note, current_color, (0, 0, 0), FADE_DURATION
                     )
 
         notes_to_remove: set[int] = set()
@@ -45,11 +53,13 @@ def midi_handler_loop(strip, midi_input, shutdown_event):
 
         strip.show()
 
+        # im running this after updating leds opposed to in that loop as it introduces delay
         for note in notes_to_remove:
-            del active_notes[note]
+            active_notes.pop(note, None)
 
-        # every 5 seconds check that midi device is still connected
-        if int(time.time()) % 5 == 0 and len(mido.get_input_names()) < 2:  # type: ignore
+        # every 5 seconds checks that midi device is still connected
+        curr_time = int(time.time())
+        if curr_time % CHECK_CONNECTED_INTERVAL == 0 and len(mido.get_input_names()) < MIN_MIDI_DEVICES:  # type: ignore
             break
 
         time.sleep(UPDATE_INTERVAL)

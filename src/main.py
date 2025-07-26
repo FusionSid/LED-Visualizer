@@ -35,13 +35,14 @@ def main() -> None:
     strip.begin()
     clear_all_leds(strip)
 
-    shutdown_event = Event()
+    shutdown_event = Event()  # if sset, the midi handler will exit
 
     def midi_loop():
         while not shutdown_event.is_set():
             with MidiContextManager(strip) as midi_input:
                 midi_handler_loop(strip, midi_input, shutdown_event)
 
+    # run the server and midi handler on seperate threads
     midi_thread = Thread(target=midi_loop)
     web_app_thread = Thread(
         target=lambda: webapp.run(

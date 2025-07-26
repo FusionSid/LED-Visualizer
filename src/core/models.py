@@ -33,7 +33,7 @@ class MidiContextManager:
 
 
 class NoteState:
-    def __init__(self, note, start_color, end_color, duration=0.1):
+    def __init__(self, note, start_color, end_color, duration):
         self.note = note
         self.start_color = start_color
         self.end_color = end_color
