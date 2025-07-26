@@ -13,6 +13,7 @@ LED_BRIGHTNESS: Final = 65
 LED_INVERT: Final = False
 LED_CHANNEL: Final = 0
 LED_OFF: Final = Color(0, 0, 0)
+UPDATE_INTERVAL: Final = 1 / 60  # so should run about 60 times a sec
 
 HOST: Final = "0.0.0.0"
 PORT: Final = 5000
