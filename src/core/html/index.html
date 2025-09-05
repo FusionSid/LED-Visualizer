@@ -60,7 +60,7 @@
                 justify-content: center;
             }
 
-            #randomIndicator {
+            #randomOrOffIndicator {
                 color: white;
                 display: none;
             }
@@ -69,10 +69,10 @@
     <body>
         <main>
             <label for="hue">Enter Hue:</label>
-            <input type="range" id="hue" min="0" max="0.99" step="0.001" />
+            <input type="range" id="hue" min="0" max="1" step="0.001" />
             <button onclick="submit()">Update</button>
             <div id="colorView">
-                <h1 id="randomIndicator">Random</h1>
+                <h1 id="randomOrOffIndicator"></h1>
             </div>
         </main>
 
@@ -105,16 +105,22 @@
                 const hueInput = document.getElementById("hue");
                 const colorView = document.getElementById("colorView");
 
-                const randomIndicator =
-                    document.getElementById("randomIndicator");
+                const randomIndicator = document.getElementById(
+                    "randomOrOffIndicator"
+                );
 
                 hueInput.addEventListener("input", function (e) {
-                    if (e.target.value == 0) {
+                    hue = parseFloat(e.target.value);
+
+                    if (hue == 0 || hue == 1) {
                         randomIndicator.style.display = "block";
+                        randomIndicator.textContent = ["Random", "Lights Off"][
+                            hue
+                        ];
                         return (colorView.style.backgroundColor = "black");
                     }
 
-                    const [r, g, b] = hsvToRgb(e.target.value);
+                    const [r, g, b] = hsvToRgb(hue);
                     const newColor = `rgb(${r * 255} ${g * 255} ${b * 255})`;
 
                     randomIndicator.style.display = "none";
