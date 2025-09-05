@@ -12,16 +12,14 @@ webapp = Flask(__name__, template_folder=template_dir)
 
 @webapp.route("/config", methods=["POST"])
 def config():
-    if (
-        not request.json
-        or request.json["hue"] is None
-        # the hue must be a float except for the case where its 0 (as that means random color)
-        or (not isinstance(request.json["hue"], float) and request.json["hue"] != 0)
-    ):
+    json = request.get_json(silent=True)
+    hue = json.get("hue") if json else None
+
+    if not isinstance(hue, (int, float)) or not (0 <= hue <= 1):
         with config_lock:
             return jsonify(shared_config)
 
-    data: SharedConfig = {"hue": request.json["hue"]}
+    data: SharedConfig = {"hue": hue}
 
     with config_lock:
         shared_config.update(data)
