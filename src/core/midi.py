@@ -26,9 +26,6 @@ def midi_handler_loop(strip, midi_input, shutdown_event):
         msgs = midi_input.iter_pending() if not ignore_events else iter(())
 
         for msg in msgs:
-            if ignore_events:
-                break
-
             if msg.type in ("note_on", "note_off"):
                 note = msg.note
                 leds = note_to_led_range(note)
