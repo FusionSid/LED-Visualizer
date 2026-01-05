@@ -1,4 +1,5 @@
 import time
+import rtmidi
 import mido
 
 from core.config import (
@@ -63,7 +64,13 @@ def midi_handler_loop(strip, midi_input, shutdown_event):
 
         # every 5 seconds checks that midi device is still connected
         curr_time = int(time.time())
-        if curr_time % CHECK_CONNECTED_INTERVAL == 0 and len(mido.get_input_names()) < MIN_MIDI_DEVICES:  # type: ignore
+        try:
+            if (
+                curr_time % CHECK_CONNECTED_INTERVAL == 0
+                and len(mido.get_input_names()) < MIN_MIDI_DEVICES
+            ):
+                break
+        except rtmidi.InvalidPortError as e:
             break
 
         time.sleep(UPDATE_INTERVAL)
